@@ -32,3 +32,58 @@ $ cmake --build build
 ### zig から glfw3.dll を使う
 
 
+```zig:build.zig
+// exe.install の前に追加
+
+// glfw
+exe.linkLibC();
+exe.addIncludePath("glfw/include");    
+exe.addLibraryPath("build/src/Debug");
+exe.linkSystemLibrary("glfw3dll");
+```
+
+最初の一歩。dll の関数呼び出し実験。
+
+```zig:main.zig
+const std = @import("std");
+const c = @cImport({
+    @cInclude("GLFW/glfw3.h");
+});
+
+pub fn main() !void {
+    std.debug.assert(c.glfwInit() != 0);
+    defer c.glfwTerminate();
+}
+```
+
+```.vscode/launch.json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "desktop",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/zig-out/bin/desktop",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${workspaceFolder}\\build\\src\\Debug;${env:PATH}"
+                }
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
+```
+
+動作確認成功。
+
+
+

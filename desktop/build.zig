@@ -14,6 +14,13 @@ pub fn build(b: *std.build.Builder) void {
     const exe = b.addExecutable("desktop", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
+
+    // glfw
+    exe.linkLibC();
+    exe.addIncludePath("glfw/include");    
+    exe.addLibraryPath("build/src/Debug");
+    exe.linkSystemLibrary("glfw3dll");
+
     exe.install();
 
     const run_cmd = exe.run();

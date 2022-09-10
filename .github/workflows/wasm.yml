@@ -1,0 +1,26 @@
+name: Wasm
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+      - uses: actions/checkout@v1
+      - uses: goto-bus-stop/setup-zig@v1
+      - run: cd engine && zig build -Dtarget=wasm32-freestanding
+      - run: mkdir public
+      - run: cp engine/index.* public/
+      - run: mkdir -p public/zig-out/lib
+      - run: cp engine/zig-out/lib/engine.wasm public/zig-out/lib/engine.wasm
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

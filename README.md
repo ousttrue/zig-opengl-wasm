@@ -436,3 +436,190 @@ pub fn build(b: *std.build.Builder) void {
     test_step.dependOn(&main_tests.step);
 }
 ```
+
+## その４ wasm build と index.html から WebGL 関数の注入
+
+```
+engine$ zig build -Dtarget=wasm32-freestanding
+```
+
+で Wasm ビルドできる。 => `zig-out/lib/engine.wasm`
+
+```zig:build.zig
+    const target = b.standardTargetOptions(.{});
+```
+
+と `-Dtarget=` が連動している。
+`wasm32-wasi` より `wasm32-freestanding` の方が空っぽなので ImportObject の用意が楽です。
+
+### index.html
+
+```html:index.html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="index.css">
+    <script type="module" src="index.js"></script>
+</head>
+
+<body>
+    <canvas id="gl"></canvas>
+</body>
+
+</html>
+```
+
+```css:index.css
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+canvas#gl {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+```
+
+### index.js とりあえず wasm 動かしてみる
+
+```js:index.js
+const importObject = {
+    env: {
+
+    },
+};
+
+// get
+const response = await fetch('engine/zig-out/lib/engine.wasm')
+// byte array
+const buffer = await response.arrayBuffer();
+// compile
+const compiled = await WebAssembly.compile(buffer);
+// instanciate env に webgl などを埋め込む
+const instance = await WebAssembly.instantiate(compiled, importObject);
+```
+
+以下のエラーが出ます。
+
+```
+Uncaught LinkError: WebAssembly.instantiate(): Import #0 module="env" function="genBuffers" error: function import requires a callable
+```
+
+これは、 `wasm` 初期化時に import する関数を `importObject.env` に供給する必要があるという意味です。
+ブラウザのデバッガで `compiled` 変数の import を見ると以下の関数が必要であることがわかります。
+前節で定義した `extern` 関数郡です。
+
+```js
+[
+    {
+        "module": "env",
+        "name": "genBuffers",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "bindBuffer",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "bufferData",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "createShader",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "shaderSource",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "compileShader",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "createProgram",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "attachShader",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "linkProgram",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "getUniformLocation",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "getAttribLocation",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "enableVertexAttribArray",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "vertexAttribPointer",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "viewport",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "clear",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "useProgram",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "uniformMatrix4fv",
+        "kind": "function"
+    },
+    {
+        "module": "env",
+        "name": "drawArrays",
+        "kind": "function"
+    }
+]
+```
+
+### importObject.env に webgl 関数を供給する
+
+```js
+```
+
+### zig の logger 出力を browser の console に接続する
+
+### chrome wasm デバッガー
+
+### github action で wasm ビルドして github-pages で動かす

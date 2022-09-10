@@ -1,4 +1,4 @@
-#version 110
+precision mediump float;
 uniform mat4 MVP;
 attribute vec3 vCol;
 attribute vec2 vPos;

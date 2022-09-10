@@ -17,10 +17,13 @@ pub fn build(b: *std.build.Builder) void {
 
     // glfw
     exe.linkLibC();
-    exe.addIncludePath("glfw/include");    
+    exe.addIncludePath("glfw/include");
     exe.addLibraryPath("build/src/Debug");
     exe.linkSystemLibrary("glfw3dll");
-    exe.linkSystemLibrary("OpenGL32");
+    // exe.linkSystemLibrary("OpenGL32");
+    // glad
+    exe.addIncludePath("glfw/deps");
+    exe.addCSourceFile("glfw/deps/glad_gl.c", &.{});
 
     exe.install();
 

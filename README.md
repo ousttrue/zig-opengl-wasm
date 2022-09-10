@@ -12,7 +12,7 @@ sample
 $ mkdir zig-opengl-wasm # project-root
 $ cd zig-opengl-wasm
 zig-opengl-wasm$ mkdir desktop
-$ cd desktop
+zig-opengl-wasm$ cd desktop
 zig-opengl-wasm/desktop $ zig init-exe
 ```
 
@@ -239,4 +239,30 @@ exe.addCSourceFile("glfw/deps/glad_gl.c", &.{});
 ```
 
 実行。三角形が出れば成功。
+
+## その3: wasm 化準備
+
+以下のように Engine 部分を `dll / wasm` なライブラリとする。
+
+```
+  +---------+
+  |Engine   |同じ zig ソースから dll と wasm にビルドする
+  +---------+
+  ^         ^
+  |dll      |wasm
++-------+ +-------+
+|Desktop| |Browser|
+|GLFW   | |WebGL  |
++-------+ +-------+
+```
+
+`OpenGL + glad` をライブラリとして切り離す。
+
+```
+zig-opengl-wasm$ mkdir engin
+zig-opengl-wasm$ cd engin
+zig-opengl-wasm/desktop $ zig init-lib
+```
+
+## その4: wasm 化実装
 

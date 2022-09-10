@@ -20,6 +20,7 @@ pub fn build(b: *std.build.Builder) void {
     exe.addIncludePath("glfw/include");    
     exe.addLibraryPath("build/src/Debug");
     exe.linkSystemLibrary("glfw3dll");
+    exe.linkSystemLibrary("OpenGL32");
 
     exe.install();
 

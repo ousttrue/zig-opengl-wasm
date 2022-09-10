@@ -5,8 +5,14 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const lib = b.addStaticLibrary("engine", "src/main.zig");
+    const lib = b.addSharedLibrary("engine", "src/main.zig", .unversioned);
     lib.setBuildMode(mode);
+
+    lib.linkLibC();
+    // glad
+    lib.addIncludePath("../desktop/glfw/deps");
+    lib.addCSourceFile("../desktop/glfw/deps/glad_gl.c", &.{});
+
     lib.install();
 
     const main_tests = b.addTest("src/main.zig");

@@ -15,15 +15,14 @@ pub fn build(b: *std.build.Builder) void {
     exe.setTarget(target);
     exe.setBuildMode(mode);
 
-    // glfw
     exe.linkLibC();
+    // glfw
     exe.addIncludePath("glfw/include");
     exe.addLibraryPath("build/src/Debug");
     exe.linkSystemLibrary("glfw3dll");
-    // exe.linkSystemLibrary("OpenGL32");
-    // glad
-    exe.addIncludePath("glfw/deps");
-    exe.addCSourceFile("glfw/deps/glad_gl.c", &.{});
+    // engine
+    exe.addLibraryPath("../engine/zig-out/lib");
+    exe.linkSystemLibrary("engine");
 
     exe.install();
 

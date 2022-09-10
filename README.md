@@ -381,12 +381,58 @@ export fn ENGINE_render(width: c_int, height: c_int) callconv(.C) void {
 }
 ```
 
-## その4: wasm 化
+### openg gl 関数を extern 関数化
 
-engine を wasm で動くようにする。
+`@cImport` から OpenGL を読んでいる部分を、
+自作の `extern` 関数に変更する。
+Desktop 版では glad の関数を呼び出しをする c のソースから供給して、
+WebGL 版では wasm 初期化の ImportObject 経由で canvas の WebGL 関数群を渡すための入れ物となる。
 
-### とりあえず wasm build
+<https://docs.gl/>
 
+などを参考に必要な関数をすべて用意する。
+
+```zig
+// こういうのすべて手で作った。
+// emscripten などでは隠蔽されてよくわからなくなるところ
+pub extern fn getString(name: GLenum) [*:0]const u8;
 ```
-engine$ zig build -Dtarget=wasm32-freestanding
+
+```c
+// C の呼び出しラッパー
+const GLubyte *getString(GLenum name) { return glad_glGetString(name); }
+```
+
+これをコンパイルして link すると extern の body として動作する。
+
+```zig:build.zig
+const std = @import("std");
+
+pub fn build(b: *std.build.Builder) void {
+    const target = b.standardTargetOptions(.{});
+
+    // Standard release options allow the person running `zig build` to select
+    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
+    const mode = b.standardReleaseOptions();
+
+    const lib = b.addSharedLibrary("engine", "src/main.zig", .unversioned);
+    lib.setTarget(target);
+    lib.setBuildMode(mode);
+
+    if (target.cpu_arch != std.Target.Cpu.Arch.wasm32) { // <- デスクトップのときだけ glad から供給する
+        // glad
+        lib.linkLibC();
+        lib.addIncludePath("../desktop/glfw/deps");
+        lib.addCSourceFile("../desktop/glfw/deps/glad_gl.c", &.{});
+        lib.addCSourceFile("src/glad_placeholders.c", &.{}); // <- これ
+    }
+
+    lib.install();
+
+    const main_tests = b.addTest("src/main.zig");
+    main_tests.setBuildMode(mode);
+
+    const test_step = b.step("test", "Run library tests");
+    test_step.dependOn(&main_tests.step);
+}
 ```

@@ -10,6 +10,14 @@
             "problemMatcher": [
                 "$gcc"
             ]
-        }
+        },
+        {
+            "label": "build wasm",
+            "type": "shell",
+            "command": "zig build -Dtarget=wasm32-freestanding",
+            "problemMatcher": [
+                "$gcc"
+            ],
+        },
     ]
 }

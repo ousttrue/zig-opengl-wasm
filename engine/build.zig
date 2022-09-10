@@ -1,17 +1,23 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
+    const target = b.standardTargetOptions(.{});
+
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
     const lib = b.addSharedLibrary("engine", "src/main.zig", .unversioned);
+    lib.setTarget(target);
     lib.setBuildMode(mode);
 
-    lib.linkLibC();
-    // glad
-    lib.addIncludePath("../desktop/glfw/deps");
-    lib.addCSourceFile("../desktop/glfw/deps/glad_gl.c", &.{});
+    if (target.cpu_arch != std.Target.Cpu.Arch.wasm32) {
+        // glad
+        lib.linkLibC();
+        lib.addIncludePath("../desktop/glfw/deps");
+        lib.addCSourceFile("../desktop/glfw/deps/glad_gl.c", &.{});
+        lib.addCSourceFile("src/glad_placeholders.c", &.{});
+    }
 
     lib.install();
 

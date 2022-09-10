@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: master      
       - run: cd engine && zig build -Dtarget=wasm32-freestanding
       - run: mkdir public
       - run: cp engine/index.* public/

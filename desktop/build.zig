@@ -18,8 +18,13 @@ pub fn build(b: *std.build.Builder) void {
     exe.linkLibC();
     // glfw
     exe.addIncludePath("glfw/include");
-    exe.addLibraryPath("build/src/Debug");
-    exe.linkSystemLibrary("glfw3dll");
+    if (target.isWindows()) {
+        exe.addLibraryPath("build/src/Debug");
+        exe.linkSystemLibrary("glfw3dll");
+    } else {
+        exe.addLibraryPath("build/src");
+        exe.linkSystemLibrary("glfw");
+    }
     // engine
     exe.addLibraryPath("../engine/zig-out/lib");
     exe.linkSystemLibrary("engine");

@@ -10,6 +10,20 @@
             "problemMatcher": [
                 "$gcc"
             ]
-        }
+        },
+        {
+            "label": "glfw: configure",
+            "type": "shell",
+            "command": "cmake -B build -S glfw -DBUILD_SHARED_LIBS=ON",
+            "problemMatcher": [
+            ]
+        },
+        {
+            "label": "glfw: build",
+            "type": "shell",
+            "command": "cmake --build build",
+            "problemMatcher": [
+            ]
+        },
     ]
 }

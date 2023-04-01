@@ -91,7 +91,8 @@ void enableVertexAttribArray(GLuint index) {
 void vertexAttribPointer(GLuint index, GLint size, GLenum type,
                          GLboolean normalized, GLsizei stride,
                          GLsizeiptr offset) {
-  glad_glVertexAttribPointer(index, size, type, normalized, stride, offset);
+  glad_glVertexAttribPointer(index, size, type, normalized, stride,
+                             (const void *)offset);
 }
 
 void useProgram(GLuint program) { glad_glUseProgram(program); }
@@ -116,9 +117,9 @@ void bindTexture(GLenum target, GLuint texture) {
   glad_glBindTexture(target, texture);
 }
 
-void texImage2D(GLenum target, GLint level, GLint internalFormat,
-                  GLsizei width, GLsizei height, GLint border, GLenum format,
-                  GLenum type, const GLvoid *data) {
+void texImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width,
+                GLsizei height, GLint border, GLenum format, GLenum type,
+                const GLvoid *data) {
   glad_glTexImage2D(target, level, internalFormat, width, height, border,
                     format, type, data);
 }

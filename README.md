@@ -2,6 +2,11 @@
 
 sample
 
+## 202304更新
+
+- `zig-0.11.0-dev.2336`
+- glfw を dll build せずに zig で直接コンパイルする
+
 ## その1: GLFW window を glClear
 
 <https://www.glfw.org/documentation.html>
@@ -16,36 +21,7 @@ zig-opengl-wasm$ cd desktop
 zig-opengl-wasm/desktop $ zig init-exe
 ```
 
-### GLFW を dll build する
-
-```
-zig-opengl-wasm/desktop$ git submodule add https://github.com/glfw/glfw.git
-zig-opengl-wasm/desktop$ cd glfw
-zig-opengl-wasm/desktop/glfw$ git switch -C Branch_3.3.8 3.3.8 
-zig-opengl-wasm/desktop/glfw$ cd ..
-zig-opengl-wasm/desktop$ cmake -B build -S glfw -DBUILD_SHARED_LIBS=ON
-zig-opengl-wasm/desktop$ cmake --build build
-```
-
-> `static build` だとなんか不可解なエラーが出て解決できなかったので切り離しています。
-
-`build/src/Debug/glfw3.dll`
-`build/src/Debug/glfw3dll.lib`
-
-### zig から glfw3.dll を使う
-
-
-```zig:build.zig
-// exe.install の前に追加
-
-// glfw
-exe.linkLibC();
-exe.addIncludePath("glfw/include");    
-exe.addLibraryPath("build/src/Debug");
-exe.linkSystemLibrary("glfw3dll");
-```
-
-最初の一歩。dll の関数呼び出し実験。
+最初の一歩。glfw の関数呼び出し実験。
 
 ```zig:main.zig
 const std = @import("std");

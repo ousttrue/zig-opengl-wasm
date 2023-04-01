@@ -5,11 +5,14 @@ pub fn build(b: *std.build.Builder) void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    const mode = b.standardOptimizeOption(.{});
 
-    const lib = b.addSharedLibrary("engine", "src/main.zig", .unversioned);
-    lib.setTarget(target);
-    lib.setBuildMode(mode);
+    const lib = b.addSharedLibrary(.{
+        .name = "engine",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = mode,
+    });
 
     if (target.cpu_arch != std.Target.Cpu.Arch.wasm32) {
         // glad
@@ -21,8 +24,10 @@ pub fn build(b: *std.build.Builder) void {
 
     lib.install();
 
-    const main_tests = b.addTest("src/main.zig");
-    main_tests.setBuildMode(mode);
+    const main_tests = b.addTest(.{
+        .root_source_file = .{ .path = "src/main.zig" },
+        .optimize = mode,
+    });
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&main_tests.step);

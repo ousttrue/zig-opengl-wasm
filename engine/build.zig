@@ -19,6 +19,7 @@ pub fn build(b: *std.build.Builder) void {
         lib.export_symbol_names = &[_][]const u8{
             "ENGINE_init",
             "ENGINE_render",
+            "ENGINE_getGlobalInput",
         };
     } else {
         // glad

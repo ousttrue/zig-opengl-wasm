@@ -21,8 +21,31 @@ pub fn build(b: *std.build.Builder) void {
     exe.linkLibC();
     // glfw
     exe.addIncludePath("glfw/include");
+
     if (target.isWindows()) {
         exe.addLibraryPath("build/src/Debug");
+        exe.addCSourceFiles(&[_][]const u8{
+            "glfw/src/context.c",
+            "glfw/src/init.c",
+            "glfw/src/input.c",
+            "glfw/src/monitor.c",
+            "glfw/src/vulkan.c",
+            "glfw/src/window.c",
+            // win32
+            "glfw/src/win32_init.c",
+            "glfw/src/win32_joystick.c",
+            "glfw/src/win32_monitor.c",
+            "glfw/src/win32_time.c",
+            "glfw/src/win32_thread.c",
+            "glfw/src/win32_window.c",
+            "glfw/src/wgl_context.c",
+            "glfw/src/egl_context.c",
+            "glfw/src/osmesa_context.c",
+        }, &[_][]const u8{
+            "-D_GLFW_WIN32=1",
+            "-D_UNICODE=1",
+        });
+        exe.linkSystemLibrary("OpenGL32");
     } else {
         exe.addLibraryPath("build/src");
         exe.addCSourceFiles(&[_][]const u8{

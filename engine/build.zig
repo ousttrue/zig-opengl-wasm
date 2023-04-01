@@ -14,7 +14,13 @@ pub fn build(b: *std.build.Builder) void {
         .optimize = mode,
     });
 
-    if (target.cpu_arch != std.Target.Cpu.Arch.wasm32) {
+    if (target.cpu_arch == std.Target.Cpu.Arch.wasm32) {
+        lib.rdynamic = true;
+        lib.export_symbol_names = &[_][]const u8{
+            "ENGINE_init",
+            "ENGINE_render",
+        };
+    } else {
         // glad
         lib.linkLibC();
         lib.addIncludePath("../desktop/glfw/deps");

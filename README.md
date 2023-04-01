@@ -6,6 +6,9 @@ sample
 
 - `zig-0.11.0-dev.2336`
 - glfw を dll build せずに zig で直接コンパイルする
+  - [x] Windows11
+  - [x] Ubuntu22.04
+  - [ ] WSL(動くがOpenGLの絵が出ない)
 
 ## その1: GLFW window を glClear
 

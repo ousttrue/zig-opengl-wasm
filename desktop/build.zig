@@ -23,7 +23,6 @@ pub fn build(b: *std.build.Builder) void {
     exe.addIncludePath("glfw/include");
 
     if (target.isWindows()) {
-        exe.addLibraryPath("build/src/Debug");
         exe.addCSourceFiles(&[_][]const u8{
             "glfw/src/context.c",
             "glfw/src/init.c",
@@ -45,9 +44,10 @@ pub fn build(b: *std.build.Builder) void {
             "-D_GLFW_WIN32=1",
             "-D_UNICODE=1",
         });
+        exe.linkSystemLibrary("User32");
+        exe.linkSystemLibrary("Gdi32");
         exe.linkSystemLibrary("OpenGL32");
     } else {
-        exe.addLibraryPath("build/src");
         exe.addCSourceFiles(&[_][]const u8{
             "glfw/src/context.c",
             "glfw/src/init.c",
